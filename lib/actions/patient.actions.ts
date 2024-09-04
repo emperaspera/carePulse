@@ -1,4 +1,4 @@
-'use server';
+"use server";
 
 import {
     BUCKET_ID,
@@ -11,8 +11,7 @@ import {
 } from "@/lib/appwrite.config";
 import {ID, Query} from "node-appwrite";
 import {parseStringify} from "@/lib/utils";
-import {InputFile} from "node-appwrite/file";
-
+import {InputFile} from "node-appwrite/file"
 export const createUser = async (user: CreateUserParams)=> {
     try {
         const newUser = await users.create(
@@ -20,20 +19,21 @@ export const createUser = async (user: CreateUserParams)=> {
             user.email,
             user.phone,
             undefined,
-            user.name);
+            user.name
+        );
 
         return parseStringify(newUser);
     } catch (error: any) {
         if(error && error?.code === 409) {
             const existingUser = await users.list([
-                Query.equal('email', [user.email])
+                Query.equal("email", [user.email])
             ])
 
             return existingUser?.users[0];
         }
         console.error("An error occurred while creating a new user:", error);
     }
-}
+};
 
 export const getUser = async (userId: string) => {
     try {
@@ -46,7 +46,7 @@ export const getUser = async (userId: string) => {
             error
         );
     }
-}
+};
 
 export const registerPatient = async ({identificationDocument, ...patient}: RegisterUserParams) => {
     try {
@@ -73,10 +73,27 @@ export const registerPatient = async ({identificationDocument, ...patient}: Regi
                     : null,
                 ...patient,
             }
-        )
+        );
 
         return parseStringify(newPatient);
     } catch (error) {
         console.error("An error occurred while creating a new patient:", error);
     }
-}
+};
+
+export const getPatient = async (userId: string) => {
+    try {
+        const patients = await databases.listDocuments(
+            DATABASE_ID!,
+            PATIENT_COLLECTION_ID!,
+            [Query.equal("userId", [userId])]
+        );
+
+        return parseStringify(patients.documents[0]);
+    } catch (error) {
+        console.error(
+            "An error occurred while retrieving the patient details:",
+            error
+        );
+    }
+};
